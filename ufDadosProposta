@@ -1,0 +1,164 @@
+Private Sub cbConfirmar_Click()
+
+Dim bmks As Bookmarks
+Dim bmRange As Range
+
+'Pass the userform values to the document's bookmarks.
+
+Set bmks = ActiveDocument.Bookmarks
+
+If Me.tbNomeSobrenome.Value <> "" Then
+    Set bmRange = ActiveDocument.Bookmarks("bmNomeSobrenome").Range
+    bmRange.text = Me.tbNomeSobrenome.Value
+Else
+    MsgBox "Campo NOME DO COMPRADOR inválido!", vbExclamation, "Aviso"
+    Me.tbNomeSobrenome.SetFocus
+    Exit Sub
+End If
+
+If Me.tbEmpresa.Value <> "" Then
+    Set bmRange = ActiveDocument.Bookmarks("bmNomeEmpresa").Range
+    bmRange.text = Me.tbEmpresa.Value
+    Set bmRange = ActiveDocument.Bookmarks("bmNomeEmpresa1").Range
+    bmRange.text = Me.tbEmpresa.Value
+Else
+    MsgBox "Campo EMPRESA inválido!", vbExclamation, "Aviso"
+    Me.tbEmpresa.SetFocus
+    Exit Sub
+End If
+
+If Me.tbEmail.Value <> "" Then
+    Set bmRange = ActiveDocument.Bookmarks("bmEmail").Range
+    bmRange.text = Me.tbEmail.Value
+Else
+    MsgBox "Campo EMAIL inválido!", vbExclamation, "Aviso"
+    Me.tbEmail.SetFocus
+    Exit Sub
+End If
+
+If Me.tbTelefone.Value <> "" Then
+    Set bmRange = ActiveDocument.Bookmarks("bmTelefone").Range
+    bmRange.text = Me.tbTelefone.Value
+Else
+    MsgBox "Campo TELEFONE inválido!", vbExclamation, "Aviso"
+    Me.tbTelefone.SetFocus
+    Exit Sub
+End If
+
+If Me.tbNumeroProposta.Value <> "" Then
+    Set bmRange = ActiveDocument.Bookmarks("bmNumeroProposta").Range
+    bmRange.text = Me.tbNumeroProposta.Value
+    Set bmRange = ActiveDocument.Bookmarks("bmNumeroProposta1").Range
+    bmRange.text = Me.tbNumeroProposta.Value
+Else
+    MsgBox "Campo NÚMERO DA PROPOSTA inválido!", vbExclamation, "Aviso"
+    Me.tbNumeroProposta.SetFocus
+    Exit Sub
+End If
+
+If Me.tbReferencia.Value <> "" Then
+    Set bmRange = ActiveDocument.Bookmarks("bmReferencia").Range
+    bmRange.text = Me.tbReferencia.Value
+Else
+    MsgBox "Campo TÍTULO inválido!", vbExclamation, "Aviso"
+    Me.tbReferencia.SetFocus
+    Exit Sub
+End If
+
+If Me.tbTituloRodape.Value <> "" Then
+    Set bmRange = ActiveDocument.Bookmarks("bmNomeResumo").Range
+    bmRange.text = Me.tbTituloRodape.Value
+Else
+    MsgBox "Campo TÍTULO RODAPÉ inválido!", vbExclamation, "Aviso"
+    Me.tbTituloRodape.SetFocus
+    Exit Sub
+End If
+
+If Label9.Caption <> "" Then
+    ActiveDocument.Bookmarks("bmLogoCliente").Select
+    Selection.InlineShapes.AddPicture FileName:=Me.Label9.Caption, LinkToFile:=False, SaveWithDocument:=True
+End If
+
+'Set the object variable to Nothing.
+Set bmRange = Nothing
+
+Unload Me
+
+End Sub
+
+Private Sub cbLogoPicker_Click()
+
+'Declare a variable as a FileDialog object.
+Dim fd As FileDialog
+
+'Create a FileDialog object as a File Picker dialog box.
+Set fd = Application.FileDialog(msoFileDialogFilePicker)
+
+'Declare a variable to contain the path
+'of each selected item. Even though the path is a String,
+'the variable must be a Variant because For Each...Next
+'routines only work with Variants and Objects.
+Dim vrtSelectedItem As Variant
+
+'Use a With...End With block to reference the FileDialog object.
+With fd
+    'Use the Show method to display the File Picker dialog box and return the user's action.
+    'The user pressed the action button.
+    If .Show = -1 Then
+        'Step through each string in the FileDialogSelectedItems collection.
+        For Each vrtSelectedItem In .SelectedItems
+            'vrtSelectedItem is a String that contains the path of each selected item.
+            'You can use any file I/O functions that you want to work with this path.
+            Me.imLogo.Picture = LoadPicture(vrtSelectedItem)
+            Me.imLogo.PictureSizeMode = fmPictureSizeModeZoom
+            Me.Label9.Caption = vrtSelectedItem
+        Next vrtSelectedItem
+    Else
+    End If
+End With
+
+'Set the object variable to Nothing.
+Set fd = Nothing
+
+End Sub
+
+Private Sub cbSair_Click()
+
+Unload Me
+
+End Sub
+
+
+Function FormataTelefone(ByVal text As String) As String
+Dim i As Long
+
+' ignora vazio
+If Len(text) = 0 Then Exit Function
+
+ 'verifica valores invalidos
+  For i = Len(text) To 1 Step -1
+    If InStr("0123456789", Mid$(text, i, 1)) = 0 Then
+       text = Left$(text, i - 1) & Mid$(text, i + 1)
+    End If
+  Next
+  ' ajusta a posicao correta
+  If Len(text) <= 7 Then
+     FormataTelefone = Format$(text, "+55 !@@@-@@@@")
+  ElseIf Len(text) > 7 And Len(text) <= 9 Then
+     FormataTelefone = Format$(text, "+55 !(@@) @@@-@@@@")
+  ElseIf Len(text) > 9 Then
+     FormataTelefone = Format$(text, "+55 !(@@) @@@@-@@@@")
+  End If
+End Function
+
+
+Private Sub tbTelefone_Exit(ByVal Cancel As MSForms.ReturnBoolean)
+
+If Not IsNumeric(tbTelefone.text) Or Len(tbTelefone.text) < 4 Then
+   keepfocus = True
+   MsgBox "Informe um valor valido !", vbInformation, "Telefone"
+   Exit Sub
+End If
+tbTelefone.text = FormataTelefone(tbTelefone.text)
+
+End Sub
